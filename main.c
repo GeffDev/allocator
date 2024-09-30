@@ -13,7 +13,10 @@ int main() {
     unsigned char *allocated_array1 = mem_alloc(0x100);
     unsigned char *allocated_array2 = mem_alloc(0x100);
 
-    mem_free(allocated_array);
     mem_free(allocated_array1);
+
+    mem_defrag();
+
+    mem_free(allocated_array);
     mem_free(allocated_array2);
 }

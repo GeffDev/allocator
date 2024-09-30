@@ -5,12 +5,10 @@
 #ifndef ALLOCATOR_H
 #define ALLOCATOR_H
 
-#include <stdio.h>
-
 #ifdef ALLOCATOR_IMPLEMENTATION
 
 // linked list style
-struct Block {
+static struct Block {
     size_t len;
     struct Block *previous, *next;
 } Block;
@@ -105,6 +103,34 @@ void mem_free(void *ptr) {
     block->previous->next = block->next;
     if (block->previous->next != NULL) {
         block->next->previous = block->previous;
+    }
+}
+
+void mem_defrag() {
+    struct Block *next = memory->next;
+    struct Block *previous = memory;
+    char *pos = (char *)memory + BLOCK_LEN;
+
+    while (next != NULL) {
+        // the size between both of these blocks in bytes
+        size_t size_between = (char *)next - pos;
+
+        if (size_between > 0) {
+            // shift the next address to the left
+            char *src = (char *)next;
+            char *dst = pos;
+
+            for (size_t i = 0; i < next->len; i++) {
+                dst[i] = src[i];
+            }
+
+            previous->next = (struct Block *)pos;
+            next = (struct Block *)pos;
+        }
+
+        pos = (char *)next + next->len;
+        previous = next;
+        next = next->next;
     }
 }
 
